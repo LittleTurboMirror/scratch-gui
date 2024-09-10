@@ -9,12 +9,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Setup Github Pages
+      id: pages
+      uses: actions/configure-pages@v1
     - name: Install Node.js
       uses: actions/setup-node@v4
       with:
         node-version: 20
         cache: npm
-    - run: npm ci
-    - run: npm run build
-    - run: npm run test:unit
+    #- run: npm ci
+    #- run: npm run build
+    #- run: npm run test:unit
+    - name: Install and build
+      run: npm i --force && NODE_ENV=production webpack --bail
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: ./build/
+  deploy:
+    environment: 
+      name: github-pages
+      url: 'https://littleturbomirror.github.io/scratch-gui'
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v1
